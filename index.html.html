@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JNCIA-SEC Mastery Pro - Full Options</title>
+    <style>
+        :root { --p: #007732; --accent: #fbbf24; --bg: #f1f5f9; --card: #ffffff; --txt: #1e293b; --correct: #10b981; --wrong: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 15px; display: flex; justify-content: center; min-height: 100vh; color: var(--txt); }
+        .main-wrapper { display: flex; width: 100%; max-width: 1100px; gap: 20px; }
+        .container { flex: 1; background: var(--card); border-radius: 12px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); position: relative; }
+        .sidebar { width: 280px; background: var(--card); border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); height: fit-content; position: sticky; top: 20px; display: none; }
+        
+        #start-screen { text-align: center; padding: 40px 0; }
+        .start-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
+        .btn-start { padding: 20px; border-radius: 12px; border: none; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn-original { background: #64748b; color: white; }
+        .btn-shuffle { background: var(--p); color: white; }
+
+        #quiz-box { display: none; }
+        .header h1 { color: var(--p); font-size: 22px; margin: 0; text-align: center; }
+        .header p { text-align: center; color: #64748b; margin-bottom: 20px; font-size: 14px; }
+        .q-text { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #0f172a; border-left: 5px solid var(--p); padding-left: 15px; line-height: 1.6; }
+        
+        .opt { display: flex; align-items: center; padding: 14px; border: 2px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; }
+        .opt.selected { border-color: var(--p); background: #f0fdf4; }
+        .indicator { width: 20px; height: 20px; border: 2px solid #cbd5e1; margin-right: 15px; flex-shrink: 0; }
+        .type-single .indicator { border-radius: 50%; }
+        .type-single .selected .indicator { border-color: var(--p); background: var(--p); box-shadow: inset 0 0 0 4px #fff; }
+        .type-multi .indicator { border-radius: 4px; }
+        .type-multi .selected .indicator { border-color: var(--p); background: var(--p); display: flex; align-items: center; justify-content: center; }
+        .type-multi .selected .indicator::after { content: '✓'; color: white; font-size: 14px; font-weight: bold; }
+
+        .btn-footer { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 25px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 12px; }
+        .btn-prev { background: #e2e8f0; color: #475569; }
+        .btn-check { background: var(--accent); color: #000; }
+        .btn-next { background: #2563eb; color: white; }
+
+        .nav-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 15px; max-height: 400px; overflow-y: auto; }
+        .nav-item { aspect-ratio: 1; border-radius: 6px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; }
+        .nav-item.active { border: 2px solid var(--p); font-weight: bold; }
+        .nav-item.correct { background: var(--correct); color: white; border: none; }
+        .nav-item.wrong { background: var(--wrong); color: white; border: none; }
+
+        #feedback { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; font-weight: 600; border: 1px solid transparent; }
+        .fb-correct { background: #d1fae5; color: #065f46; border-color: var(--correct); }
+        .fb-wrong { background: #fee2e2; color: #991b1b; border-color: var(--wrong); }
+
+        #result-screen { display: none; text-align: center; padding: 30px 0; }
+        .score-circle { width: 120px; height: 120px; border-radius: 50%; border: 8px solid var(--p); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 900; margin: 20px auto; color: var(--p); }
+        
+        @media (max-width: 800px) { .main-wrapper { flex-direction: column; } .sidebar { width: 100%; display: none; } }
+    </style>
+</head>
+<body>
+
+<div class="main-wrapper">
+    <div class="container">
+        <div id="start-screen">
+            <h1 style="color: var(--p);">JNCIA-SEC Voucher Exam</h1>
+            <p>Chào chuyên gia <strong>Nguyen Van Chien</strong>. Bộ câu hỏi 61 câu đã được cập nhật đầy đủ các lựa chọn.</p>
+            <div class="start-btn-group">
+                <button class="btn-start btn-original" onclick="startQuiz(false)">THỨ TỰ GỐC</button>
+                <button class="btn-start btn-shuffle" onclick="startQuiz(true)">XÁO TRỘN ĐỀ</button>
+            </div>
+        </div>
+
+        <div id="quiz-box">
+            <div class="header">
+                <h1 id="exam-title">Luyện tập JNCIA-SEC</h1>
+                <p id="progress-text">Câu hỏi 1 / 61</p>
+            </div>
+            <div id="q-text" class="q-text"></div>
+            <div id="options-area"></div>
+            <div id="feedback"></div>
+            <div class="btn-footer">
+                <button class="btn btn-prev" onclick="changeQ(-1)">Previous</button>
+                <button class="btn btn-check" onclick="checkAnswer()">Confirm</button>
+                <button class="btn btn-next" onclick="changeQ(1)">Next</button>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h1>Hoàn thành!</h1>
+            <div class="score-circle" id="final-score">0/61</div>
+            <p id="stat-text"></p>
+            <button class="btn btn-next" style="width: 100%; margin-bottom: 10px;" onclick="location.reload()">Làm lại từ đầu</button>
+            <button id="btn-review-wrong" class="btn" style="background: var(--wrong); color:white; width: 100%;" onclick="startReviewWrong()">Ôn lại các câu đã sai</button>
+        </div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <h3 style="margin:0 0 10px 0; font-size: 15px;">Tiến độ bài làm</h3>
+        <div class="nav-grid" id="nav-grid"></div>
+    </div>
+</div>
+
+<script>
+    // DỮ LIỆU ĐÃ CẬP NHẬT ĐẦY ĐỦ 4-5 LỰA CHỌN TỪ EXCEL
+    const questionsDB = [{"q": "Which two statements are correct referring to Trust→DMZ policies (FTP, ping permit; SSH block)", "a": ["SSH denied", "FTP/ping permitted", "SSH permitted", "FTP/ping denied"], "c": "AB"}, {"q": "Three primary match criteria in Junos security policy", "a": ["source port", "source address", "application", "destination address"], "c": "BCD"}, {"q": "Facebook still accessible – fix config", "a": ["Internet service junos-defaults", "Block service any", "Internet dynamic any", "Block dynamic any"], "c": "B"}, {"q": "Correct statement about NAT", "a": ["Static after forwarding", "Source before policy", "Static > destination", "Destination > static"], "c": "C"}, {"q": "Interface-based NAT correct statement", "a": ["pool source", "pool destination", "translate destination", "interface IP"], "c": "D"}, {"q": "Enable NAT policy config change", "a": ["delete NAT rule-set", "delete interface", "set from zone NAT", "set untrust interface"], "c": "D"}, {"q": "Command to observe NAT translations", "a": ["flow status", "flow gate", "flow session", "flow statistics"], "c": "C"}, {"q": "NAT rule “from” matching criteria (3)", "a": ["zone", "TCP port", "interface", "routing instance"], "c": "ACD"}, {"q": "No return traffic after source NAT pool", "a": ["proxy ARP", "MACsec", "disable PAT", "expand pool"], "c": "A"}, {"q": "Only 1 public IP NAT solution", "a": ["pool no PAT", "interface NAT", "pool shifting", "pool PAT"], "c": "B"}, {"q": "Antispam processing order", "a": ["ext→block→allow", "ext→allow→block", "block→allow→ext", "allow→block→ext"], "c": "D"}, {"q": "Three Content Security features", "a": ["IDP", "antivirus", "Web filtering", "screens"], "c": "ABC"}, {"q": "Content Security executed by which component", "a": ["policies", "zones", "services", "screens"], "c": "C"}, {"q": "Content Security profile required steps", "a": ["firewall filter", "profile→policy", "policy→security policy", "policy→address book"], "c": "BC"}, {"q": "Features included in Content Security (2)", "a": ["IDP", "NAT", "antivirus", "content filtering"], "c": "CD"}, {"q": "Protocols inspected by Content Security (3)", "a": ["FTP", "SMTP", "SNMP", "HTTP"], "c": "ABD"}, {"q": "Verify AppSecure license command", "a": ["services accounting", "chassis firmware", "config system", "system license"], "c": "D"}, {"q": "Check if traffic hits policy", "a": ["system services", "interface stats", "route detail", "policy hit-count"], "c": "D"}, {"q": "show security flow session provides (2)", "a": ["policy name", "source IP", "session time", "data path"], "c": "AB"}, {"q": "Capture packets on interface ge-0/0/2 (2)", "a": ["firewall filter", "flow filename", "forwarding file", "security policy"], "c": "AC"}, {"q": "Debug dropped traffic", "a": ["flow trace", "interface trace", "system trace", "zone trace"], "c": "A"}, {"q": "What is one of the primary challenges faced by network security administrators?", "a": ["Managing both internal and external threats", "Relying only on basic security training", "Focusing solely on external threats", "Ignoring insider threats"], "c": "A"}, {"q": "Which describes SRX Series Firewall form factors?", "a": ["Only virtual", "Only container", "Physical + virtual + container", "Only physical"], "c": "C"}, {"q": "Primary tool for managing SRX Series firewalls", "a": ["J-Web", "Security Director", "Terminal program", "Junos CLI"], "c": "D"}, {"q": "Purpose of security zones & functional zones", "a": ["Only firewall policy mgmt", "Security zones group segments; functional zones mgmt", "Same purpose", "Reverse roles"], "c": "B"}, {"q": "Purpose of Null zone in Junos OS", "a": ["Bypass policy", "Allow all zones", "Backup zone", "Isolate interfaces"], "c": "D"}, {"q": "Purpose of host-inbound-traffic", "a": ["Manage outbound", "Control exception traffic to firewall", "Enable all services", "Filter transit traffic"], "c": "B"}, {"q": "When does screening occur?", "a": ["After session lookup", "Before session lookup", "After route lookup", "Mixed option"], "c": "B"}, {"q": "TCP screen for SYN flood defense", "a": ["Port scan", "SYN flood", "TCP sweep", "FIN no ACK"], "c": "B"}, {"q": "Key advantage of Junos modular architecture", "a": ["Manual restart", "Independent restart", "Single memory space", "No control plane"], "c": "B"}, {"q": "Role of Packet Forwarding Engine (PFE)", "a": ["Forwarding table + services", "Routing protocols", "Sync every packet", "UI mgmt"], "c": "A"}, {"q": "Which describes SRX traffic processing methods?", "a": ["Both stateless", "Packet uses session table", "Packet stateless, session stateful", "Reverse"], "c": "C"}, {"q": "Which five pieces does session-based processing record?", "a": ["Src IP, Dst IP, Size, Src Port, Dst Port", "Src IP, Dst IP, Src Port, Dst Port, Type", "Src IP, Dst IP, Src Port, Dst Port, Protocol", "Src IP, Dst IP, Src Port, Dst Port, MAC"], "c": "C"}, {"q": "Primary benefit of fast path processing", "a": ["Prioritize outbound", "Extra security checks", "Create new sessions each packet", "Bypass lookup"], "c": "D"}, {"q": "Two distinctions of Junos data plane", "a": ["Implemented on PFE", "Screen options", "Implemented on RE", "Clustering control"], "c": "A"}, {"q": "Default behavior of SRX (choose two)", "a": ["Packet mode", "Not support stateless", "Flow mode", "Supports stateless filters"], "c": "CD"}, {"q": "Two examples of exception traffic", "a": ["IP options", "ICMP", "Encrypted packets", "OSPF updates"], "c": "BD"}, {"q": "Two distinctions of control plane", "a": ["Implemented on RE", "Implemented on PFE", "Session setup", "Kernel processes"], "c": "AD"}, {"q": "Which is system-defined zone", "a": ["junos-device", "junos-only", "junos-zone", "junos-host"], "c": "D"}, {"q": "Two valid address book entries", "a": ["203.0.113.0/24", "203.0.113.154/24", "203.0.113.50/25", "203.0.113.128/25"], "c": "BC"}, {"q": "Correct statement about security zones", "a": ["Must contain keyword zone", "Logical interfaces added", "Must have at least one interface", "Policies inside zone"], "c": "B"}, {"q": "Which two components are configured for host inbound traffic?", "a": ["physical interface", "logical interface", "routing instance", "zone"], "c": "BD"}, {"q": "What is the main purpose of using screens on an SRX Series device?", "a": ["provide traffic info", "CLI alternative", "protect against DoS", "multiple ports"], "c": "C"}, {"q": "Which two non-configurable zones exist by default?", "a": ["junos-host", "management", "functional"], "c": "AB"}, {"q": "Which two statements are correct about the null zone?", "a": ["functional zone", "no traffic", "created default", "must enable"], "c": "BC"}, {"q": "Which two statements are correct about functional zones?", "a": ["no transit", "user-defined types", "must name", "OOB mgmt"], "c": "AD"}, {"q": "Order of first path packet processing?", "a": ["policies → zones → screens", "screens → policies", "policies → screens", "screens → zones → policies"], "c": "D"}, {"q": "Which two statements about integrated user firewall?", "a": ["non-Windows AD", "IPv6", "LDAP", "map IP-user"], "c": "CD"}, {"q": "Which statement about Junos security policies?", "a": ["enforce transit", "user group", "user access", "internal traffic"], "c": "A"}, {"q": "Which component identifies application over port 80?", "a": ["user firewall", "zone policy", "IDP", "application firewall"], "c": "D"}, {"q": "Security policy components require which three?", "a": ["action", "count", "match", "log/name"], "c": "ACD"}, {"q": "Which statement about unified security policies?", "a": ["most restrictive", "global first", "first rule", "zone first"], "c": "C"}, {"q": "Exhibit: Trust→DMZ policies", "a": ["SSH denied", "FTP allowed", "SSH allowed", "FTP denied"], "c": "AB"}, {"q": "Which three primary match criteria?", "a": ["source port", "source addr", "application", "class/dst addr"], "c": "BCD"}, {"q": "Users bypass Facebook block – fix?", "a": ["change Internet rule", "change block service ANY", "change dynamic app ANY"], "c": "B"}, {"q": "Which statement about NAT is correct?", "a": ["static after lookup", "source before policy", "static > dest", "dest > static"], "c": "D"}, {"q": "Interface-based NAT correct?", "a": ["use pool src", "use pool dst", "dst translation", "interface IP src"], "c": "D"}, {"q": "NAT config issue – enable NAT policy?", "a": ["delete rule-set", "delete interface", "set wrong zone", "fix interface zone"], "c": "D"}, {"q": "Which command shows NAT translations?", "a": ["flow status", "flow gate", "flow session", "flow stats"], "c": "C"}, {"q": "NAT rule matching “from” clause?", "a": ["zone", "TCP port", "interface", "MAC/routing"], "c": "ACD"}, {"q": "No return traffic after NAT pool?", "a": ["proxy ARP", "MACsec", "disable PAT", "expand pool"], "c": "A"}];
+
+    let currentQuestions = [];
+    let currentIdx = 0;
+    let userAnswers = [];
+    let wrongIndices = [];
+
+    function startQuiz(isShuffle) {
+        currentQuestions = isShuffle ? [...questionsDB].sort(() => Math.random() - 0.5) : [...questionsDB];
+        userAnswers = new Array(currentQuestions.length).fill("");
+        wrongIndices = [];
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-box').style.display = 'block';
+        document.getElementById('sidebar').style.display = 'block';
+        initSidebar();
+        render();
+    }
+
+    function initSidebar() {
+        const grid = document.getElementById('nav-grid');
+        grid.innerHTML = "";
+        currentQuestions.forEach((_, i) => {
+            let div = document.createElement('div');
+            div.className = 'nav-item';
+            div.id = `nav-${i}`;
+            div.innerText = i + 1;
+            div.onclick = () => { currentIdx = i; render(); };
+            grid.appendChild(div);
+        });
+    }
+
+    function render() {
+        const q = currentQuestions[currentIdx];
+        const isMulti = q.c.length > 1;
+        
+        document.getElementById('progress-text').innerText = `Câu hỏi ${currentIdx + 1} / ${currentQuestions.length}`;
+        document.getElementById('q-text').innerText = q.q;
+        
+        const area = document.getElementById('options-area');
+        area.className = isMulti ? "type-multi" : "type-single";
+        area.innerHTML = "";
+
+        q.a.forEach((text, i) => {
+            const label = String.fromCharCode(65 + i);
+            const div = document.createElement('div');
+            div.className = 'opt';
+            if(userAnswers[currentIdx].includes(label)) div.classList.add('selected');
+            div.innerHTML = `<div class="indicator"></div><span><strong>${label}.</strong> ${text}</span>`;
+            div.onclick = () => {
+                if(isMulti) {
+                    userAnswers[currentIdx] = userAnswers[currentIdx].includes(label) 
+                        ? userAnswers[currentIdx].replace(label, "") : userAnswers[currentIdx] + label;
+                } else {
+                    userAnswers[currentIdx] = label;
+                }
+                render();
+            };
+            area.appendChild(div);
+        });
+        document.getElementById('feedback').style.display = 'none';
+        updateNav();
+    }
+
+    function checkAnswer() {
+        const q = currentQuestions[currentIdx];
+        const user = userAnswers[currentIdx].split('').sort().join('');
+        const correct = q.c.split('').sort().join('');
+        const fb = document.getElementById('feedback');
+        fb.style.display = 'block';
+        
+        if(user === correct) {
+            fb.className = 'feedback fb-correct';
+            fb.innerText = "Chính xác!";
+            document.getElementById(`nav-${currentIdx}`).classList.add('correct');
+        } else {
+            fb.className = 'feedback fb-wrong';
+            fb.innerText = `Chưa đúng. Đáp án là: ${q.c}`;
+            document.getElementById(`nav-${currentIdx}`).classList.add('wrong');
+            if(!wrongIndices.includes(currentIdx)) wrongIndices.push(currentIdx);
+        }
+    }
+
+    function changeQ(step) {
+        if(currentIdx + step >= currentQuestions.length) {
+            showResults();
+            return;
+        }
+        currentIdx = Math.max(0, currentIdx + step);
+        render();
+    }
+
+    function showResults() {
+        document.getElementById('quiz-box').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        let correctCount = 0;
+        userAnswers.forEach((ans, i) => {
+            if(ans.split('').sort().join('') === currentQuestions[i].c.split('').sort().join('')) correctCount++;
+        });
+        document.getElementById('final-score').innerText = `${correctCount}/${currentQuestions.length}`;
+        document.getElementById('stat-text').innerText = `Hoàn thành 61 câu. Bạn có ${wrongIndices.length} câu cần lưu ý.`;
+    }
+
+    function startReviewWrong() {
+        const wrongData = wrongIndices.map(i => currentQuestions[i]);
+        document.getElementById('result-screen').style.display = 'none';
+        startQuizFromData(wrongData);
+    }
+
+    function startQuizFromData(data) {
+        currentQuestions = data;
+        currentIdx = 0;
+        userAnswers = new Array(data.length).fill("");
+        wrongIndices = [];
+        document.getElementById('quiz-box').style.display = 'block';
+        initSidebar();
+        render();
+    }
+
+    function updateNav() {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(`nav-${currentIdx}`).classList.add('active');
+    }
+</script>
+</body>
+</html>
